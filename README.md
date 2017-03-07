@@ -1,7 +1,5 @@
 # Sofia2 Node-RED
 
-*Read this in other languages: [English](README.md), [Spanish](README.es.md).*
-
 ## Copyright notice
 
 © 2013-16 Minsait
