@@ -25,7 +25,7 @@ This repository contains the following nodes for queries on Sofia2 from Node-RED
   
 * **sofia2-delete**: This node deletes data from an ontology according to a query, the following parameters are required:
   * Ontology: Name of the ontology.
-  * Query: Query to update.
+  * Query: Query to delete.
   * Query Type: query type of the query.
 
 * **sofia2-insert**: This node inserts data in an ontology, it is necessary to indicate the name of the ontology as well as the data to be inserted in JSON format.
@@ -34,7 +34,7 @@ This repository contains the following nodes for queries on Sofia2 from Node-RED
 
 * **sofia2-query**: This node execute a query on an ontology, the following parameters are required:
   * Ontology: Name of the ontology.
-  * Query: Query to update.
+  * Query: Query to execute.
   * Query Type: query type of the query.
   
 * **sofia2-update**: This node updatee data in an ontology, the following parameters are required:
