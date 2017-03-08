@@ -13,9 +13,36 @@ Unless required by applicable law or agreed to in writing, software distributed 
 Before using the SSAP API for the first time, we strongly recommend that you learn the main concepts of the Sofia2 platform. They have been included in the Sofia2 developer documentation, which can be downloaded from http://sofia2.com/desarrollador_en.html.
 
 ## Repository contents
-This repository contains nodes for queries on Sofia2 from Node-RED and the following directories:
+This repository contains the following nodes for queries on Sofia2 from Node-RED:
 
-* [lib](lib): this directory contains the files needed to build SSAP messages.
+* **sofia2-connection-config**: Configuration nodes are scoped globally by default, this means the state will be shared between flows. This node represent a shared connection to a remote system. In that instance, the config node is responsible for creating the connection (REST or MQTT) and making it available to the nodes that use the config node. The following parameters are required to define the connection:
+  * Protocol: The protocol may be REST or MQTT. For MQTT connection is necessary to indicate the IP and Port number, whereas for REST connection is only necessary the endpoint.
+  * ThinKP and Instance: It is used to indicate the KP Instance to be referenced.
+  * Token: Identification numbber of the ThinKP.
+  * Renovate session: Connection renewal time.
+  
+* **sofia2-delete**: This node deletes data from an ontology according to a query, the following parameters are required:
+  * Ontology: Name of the ontology.
+  * Query: Query to update.
+  * Query Type: query type of the query.
+
+* **sofia2-insert**: This node inserts data in an ontology, it is necessary to indicate the name of the ontology as well as the data to be inserted in JSON format.
+
+* **sofia2-leave**: This node leaves the session, it is necessary to indicate sessionKey that should be closed.
+
+* **sofia2-query**: This node execute a query on an ontology, the following parameters are required:
+  * Ontology: Name of the ontology.
+  * Query: Query to update.
+  * Query Type: query type of the query.
+  
+* **sofia2-update**: This node updatee data in an ontology, the following parameters are required:
+  * Ontology: Name of the ontology.
+  * Query: Query to update.
+  * Query Type: query type of the query.
+
+This repository contains also the following directories:
+
+* [lib](lib): this directory contains the files needed to build SSAP messages for the REST connection, SSAP Resource and a KP for the MQTT connection.
 * [icons](icons): this directory contains the icons used in the nodes.
 
 ## Contact information
