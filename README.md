@@ -2,7 +2,7 @@
 
 ## Copyright notice
 
-© 2013-16 Minsait
+© 2013-17 Minsait
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
@@ -11,6 +11,8 @@ Unless required by applicable law or agreed to in writing, software distributed 
 ## API documentation
 
 Before using the SSAP API for the first time, we strongly recommend that you learn the main concepts of the Sofia2 platform. They have been included in the Sofia2 developer documentation, which can be downloaded from http://sofia2.com/desarrollador_en.html.
+
+The Api source code comes with a test suite where you can see an usage example of every possible query and format
 
 ## Repository contents
 This repository contains the following nodes for queries on Sofia2 from Node-RED:
