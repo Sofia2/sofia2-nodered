@@ -1,7 +1,7 @@
 module.exports = function(RED) {
-	var ssapMessageGenerator = require('./lib/SSAPMessageGenerator');
-	var sofia2Config = require('./sofia2-connection-config');
-	var ssapResourceGenerator = require('./lib/SSAPResourceGenerator');
+	var ssapMessageGenerator = require('../lib/SSAPMessageGenerator');
+	var sofia2Config = require('../sofia2-connection-config/sofia2-connection-config');
+	var ssapResourceGenerator = require('../lib/SSAPResourceGenerator');
 	var http = require('http');
     function Leave(n) {
         RED.nodes.createNode(this,n);

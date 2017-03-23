@@ -1,9 +1,8 @@
 module.exports = function(RED) {
 	"use strict";
-	var kp = require('./lib/kpMQTT');
-	var ssapMessageGenerator = require('./lib/SSAPMessageGenerator')
+	var kp = require('../lib/kpMQTT');
+	var ssapMessageGenerator = require('../lib/SSAPMessageGenerator')
 	var waitUntil = require('wait-until');
-	
 	
 	//Invoca al constructor al desplegar el flujo
     function SofiaConfig(n) {
@@ -84,6 +83,7 @@ module.exports = function(RED) {
 			
 		
 		}else{
+			
 			this.endpoint=n.endpoint;
 			
 		}
@@ -180,12 +180,7 @@ module.exports = function(RED) {
 		  return node.sessionKey;
 		}
 		
-		
     }
-	
-	  
-	
-	
 	
     RED.nodes.registerType("sofia2-config",SofiaConfig);
 }
