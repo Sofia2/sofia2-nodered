@@ -2,9 +2,7 @@ module.exports = function(RED) {
 	var ssapMessageGenerator = require('../lib/SSAPMessageGenerator');
 	var sofia2Config = require('../sofia2-connection-config/sofia2-connection-config');
 	var ssapResourceGenerator = require('../lib/SSAPResourceGenerator');
-	var http = null;
-	var isHttps = false;
-	
+	var http = require('http');
     function Leave(n) {
         RED.nodes.createNode(this,n);
         var node = this;
@@ -48,10 +46,6 @@ module.exports = function(RED) {
 					var host;
 					var port = 80;
 					
-					if (arr[0].toUpperCase()=='HTTPS'.toUpperCase()) {
-						isHttps=true;
-						console.log("Using HTTPS:"+arr[0]);
-					}
 					if(arr[0].toUpperCase()=="HTTP".toUpperCase()||arr[0].toUpperCase()=='HTTPS'.toUpperCase()){
 						host=arr[1].substring(2, arr[1].length);
 						if(arr.length>2){
@@ -78,15 +72,10 @@ module.exports = function(RED) {
 					  port: port,
 					  path: '/sib/services/api_ssap/v01/SSAPResource/',
 					  method: 'POST',
-					  headers: postheadersLeave,
-					  rejectUnauthorized: false
+					  headers: postheadersLeave
 					};
 					// do the LEAVE POST call
 					var resultLeave='';
-					if (isHttps) 
-						http= require('https');
-					else
-						http = require('http');
 					var reqLeave = http.request(optionsLeave, function(res) {
 						console.log("Status code of the Leave call: ", res.statusCode);
 						res.on('data', function(d) {
@@ -102,17 +91,15 @@ module.exports = function(RED) {
 					reqLeave.write(queryLeave);
 					reqLeave.end();
 					reqLeave.on('error', function(err) {
-						console.log("Error:"+err);
-						node.error("Error:"+err);
+						console.log(err);
 					});
 				}else if(protocol.toUpperCase() == "WEBSOCKET".toUpperCase()){
-						console.log("TODO");
+						//TODO
 				}
 				
 				
 			} else {
-					console.log("Error:"+err);
-					node.error("Error:"+err);
+				console.log("Error");
 			}
 			
         });

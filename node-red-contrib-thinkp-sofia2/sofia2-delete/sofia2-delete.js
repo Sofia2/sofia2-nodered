@@ -2,10 +2,7 @@ module.exports = function(RED) {
 	var ssapMessageGenerator = require('../lib/SSAPMessageGenerator');
 	var sofia2Config = require('../sofia2-connection-config/sofia2-connection-config');
 	var ssapResourceGenerator = require('../lib/SSAPResourceGenerator');
-
-	var http = null;
-	var isHttps = false;
-	
+	var http = require('http');
     function Delete(n) {
         RED.nodes.createNode(this,n);
         
@@ -68,10 +65,6 @@ module.exports = function(RED) {
 					var host;
 					var port = 80;
 					
-					if (arr[0].toUpperCase()=='HTTPS'.toUpperCase()) {
-						isHttps=true;
-						console.log("Using HTTPS:"+arr[0]);
-					}
 					if(arr[0].toUpperCase()=="HTTP".toUpperCase()||arr[0].toUpperCase()=='HTTPS'.toUpperCase()){
 						host=arr[1].substring(2, arr[1].length);
 						if(arr.length>2){
@@ -100,15 +93,10 @@ module.exports = function(RED) {
 					  port: port,
 					  path: '/sib/services/api_ssap/v01/SSAPResource'+queryDelete,
 					  method: 'GET',
-					  headers: postheadersDelete,
-					  rejectUnauthorized: false
+					  headers: postheadersDelete
 					};
 					// do the GET POST call
 					var resultDelete='';
-					if (isHttps) 
-						http= require('https');
-					else
-						http = require('http');
 					var reqDelete = http.request(optionsDelete, function(res) {
 						console.log("Status code of the Delete call: ", res.statusCode);
 						res.on('data', function(d) {
@@ -132,8 +120,7 @@ module.exports = function(RED) {
 								  port: port,
 								  path: '/sib/services/api_ssap/v01/SSAPResource/',
 								  method: 'POST',
-								  headers: postheadersJoin,
-								  rejectUnauthorized: false
+								  headers: postheadersJoin
 								};
 								var result='';
 								var reqPost = http.request(optionsJoin, function(res) {
@@ -161,8 +148,7 @@ module.exports = function(RED) {
 										  port: port,
 										  path: '/sib/services/api_ssap/v01/SSAPResource'+queryDelete,
 										  method: 'GET',
-										  headers: postheadersDelete,
-										  rejectUnauthorized: false
+										  headers: postheadersDelete
 										};
 										
 										// do the GET POST call
@@ -188,8 +174,7 @@ module.exports = function(RED) {
 										});
 										reqDelete.end();
 										reqDelete.on('error', function(err) {
-											console.log("Error:"+err);
-											node.error("Error:"+err);
+											console.log(err);
 										});
 										
 										
@@ -217,8 +202,7 @@ module.exports = function(RED) {
 					//reqDelete.write(queryDelete);
 					reqDelete.end();
 					reqDelete.on('error', function(err) {
-									console.log("Error:"+err);
-									node.error("Error:"+err);
+						console.log(err);
 					});
 				}
 					

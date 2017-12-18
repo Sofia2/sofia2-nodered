@@ -2,7 +2,9 @@ module.exports = function(RED) {
 	var ssapMessageGenerator = require('../lib/SSAPMessageGenerator');
 	var sofia2Config = require('../sofia2-connection-config/sofia2-connection-config');
 	var ssapResourceGenerator = require('../lib/SSAPResourceGenerator');
-	var http = require('http');
+	var http = null;
+	var isHttps = false;
+	
     function Update(n) {
         RED.nodes.createNode(this,n);
         
@@ -65,6 +67,10 @@ module.exports = function(RED) {
 					var host;
 					var port = 80;
 					
+					if (arr[0].toUpperCase()=='HTTPS'.toUpperCase()) {
+						isHttps=true;
+						console.log("Using HTTPS:"+arr[0]);
+					}
 					if(arr[0].toUpperCase()=="HTTP".toUpperCase()||arr[0].toUpperCase()=='HTTPS'.toUpperCase()){
 						host=arr[1].substring(2, arr[1].length);
 						if(arr.length>2){
@@ -91,10 +97,15 @@ module.exports = function(RED) {
 					  port: port,
 					  path: '/sib/services/api_ssap/v01/SSAPResource/'+queryUpdate,
 					  method: 'GET',
-					  headers: postheadersUpdate
+					  headers: postheadersUpdate,
+					  rejectUnauthorized: false
 					};
 					// do the UPDATE GET call
 					var resultUpdate='';
+					if (isHttps) 
+						http= require('https');
+					else
+						http = require('http');
 					var reqUpdate = http.request(optionsUpdate, function(res) {
 						console.log("Status code of the Update call: ", res.statusCode);
 						res.on('data', function(d) {
@@ -125,7 +136,8 @@ module.exports = function(RED) {
 								  port: port,
 								  path: '/sib/services/api_ssap/v01/SSAPResource/',
 								  method: 'POST',
-								  headers: postheadersJoin
+								  headers: postheadersJoin,
+								  rejectUnauthorized: false
 								};
 								
 								// do the JOIN POST call
@@ -153,7 +165,8 @@ module.exports = function(RED) {
 										  port: port,
 										  path: '/sib/services/api_ssap/v01/SSAPResource/'+queryUpdate,
 										  method: 'GET',
-										  headers: postheadersUpdate
+										  headers: postheadersUpdate,
+										  rejectUnauthorized: false
 										};
 										// do the UPDATE GET call
 										var resultUpdate='';
@@ -186,7 +199,8 @@ module.exports = function(RED) {
 								reqPost.write(queryJoin);
 								reqPost.end();
 								reqPost.on('error', function(err) {
-									console.log(err);
+									console.log("Error:"+err);
+									node.error("Error:"+err);
 								});
 										}
 									});
@@ -199,7 +213,8 @@ module.exports = function(RED) {
 				}
 				
 			} else {
-				console.log("Error");
+				console.log("Error:"+err);
+				node.error("Error:"+err);
 			}
         });
 		

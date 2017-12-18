@@ -2,9 +2,7 @@ module.exports = function(RED) {
 	var ssapMessageGenerator = require('../lib/SSAPMessageGenerator');
 	var kp = require('../lib/kpMQTT');
 	var ssapResourceGenerator = require('../lib/SSAPResourceGenerator');
-	var http = null;
-	var isHttps = false;
-	
+	var http = require('http');
     function Insert(n) {
         RED.nodes.createNode(this,n);
         var node = this;
@@ -62,11 +60,6 @@ module.exports = function(RED) {
 				}else if(protocol.toUpperCase() == "REST".toUpperCase()){
 					var endpoint = server.endpoint;
 					var arr = endpoint.toString().split(":");
-					
-					if (arr[0].toUpperCase()=='HTTPS'.toUpperCase()) {
-						isHttps=true;
-						console.log("Using HTTPS:"+arr[0]);
-					}
 					if(arr[0].toUpperCase()=="HTTP".toUpperCase()||arr[0].toUpperCase()=='HTTPS'.toUpperCase()){
 						host=arr[1].substring(2, arr[1].length);
 						if(arr.length>2){
@@ -96,15 +89,10 @@ module.exports = function(RED) {
 					  port: port,
 					  path: path,
 					  method: 'POST',
-					  headers: postheadersInsert,
-					  rejectUnauthorized: false
+					  headers: postheadersInsert
 					};
 					// do the INSERT POST call
 					var resultInsert='';
-					if (isHttps) 
-						http= require('https');
-					else
-						http = require('http');
 					var reqInsert = http.request(optionsInsert, function(res) {
 						console.log("Status code of the Insert call: ", res.statusCode);
 						res.on('data', function(d) {
@@ -129,8 +117,7 @@ module.exports = function(RED) {
 								  port: port,
 								  path: path,
 								  method: 'POST',
-								  headers: postheadersJoin,
-								  rejectUnauthorized: false
+								  headers: postheadersJoin
 								};
 								var result='';
 								var reqPost = http.request(optionsJoin, function(res) {
@@ -154,8 +141,7 @@ module.exports = function(RED) {
 										  port: port,
 										  path: '/sib/services/api_ssap/v01/SSAPResource/',
 										  method: 'POST',
-										  headers: postheadersInsert,
-										  rejectUnauthorized: false
+										  headers: postheadersInsert
 										};
 										
 										var resultInsert='';
@@ -180,8 +166,7 @@ module.exports = function(RED) {
 										reqInsert.write(queryInsert);
 										reqInsert.end();
 										reqInsert.on('error', function(err) {
-													console.log("Error:"+err);
-													node.error("Error:"+err);
+											console.log(err);
 										});
 									});
 									

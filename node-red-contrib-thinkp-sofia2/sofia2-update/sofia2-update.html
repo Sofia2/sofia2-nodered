@@ -1,6 +1,6 @@
 <html>
 	<script type="text/javascript">
-		RED.nodes.registerType('sofia2-query',{
+		RED.nodes.registerType('sofia2-update',{
 			category: 'sofia2',
 			color: '#C0DEED',
 			defaults: {
@@ -15,7 +15,7 @@
 			outputs:1,
 			icon: "sofia2.png",
 			label: function() {
-				return this.name||"sofia2-query";
+				return this.name||"sofia2-update";
 			},
 			oneditprepare: function() {
 				if($("#node-input-check").is(':checked')){
@@ -53,7 +53,7 @@
 		});
 	</script>
 
-	<script type="text/x-red" data-template-name="sofia2-query">
+	<script type="text/x-red" data-template-name="sofia2-update">
 		<div class="form-row">
 			<label for="node-input-name"><i class="icon-tag"></i> Name</label>
 			<input type="text" id="node-input-name" placeholder="Name">
@@ -82,9 +82,9 @@
 		</div>
 		<script
 	</script>
-	<script type="text/x-red" data-help-name="sofia2-query">
+	<script type="text/x-red" data-help-name="sofia2-update">
 		<span><img style="margin-left: 5px;" src="icons/sofia2.png"/><h2 style="display:inline"> Sofia2</h2>
-		<p>Node querying data in an ontology</p>
+		<p>Node updating data in an ontology</p>
 		<p><code>Ontology</code> Name of the ontology if the checkbox is selected, else the name of the ontology have to go in the <code>msg.ontology</code></p>
 		<p><code>Query</code> Query to update if the checkbox is selected, else the query have to go in the <code>msg.query</code></p>
 		<p><code>Query Type</code> Query Type of the query if the checkbox is selected, else the query type have to go in the <code>msg.queryType</code></p>

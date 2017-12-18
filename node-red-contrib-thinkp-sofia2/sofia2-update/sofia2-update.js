@@ -2,11 +2,8 @@ module.exports = function(RED) {
 	var ssapMessageGenerator = require('../lib/SSAPMessageGenerator');
 	var sofia2Config = require('../sofia2-connection-config/sofia2-connection-config');
 	var ssapResourceGenerator = require('../lib/SSAPResourceGenerator');
-
-	var http = null;
-	var isHttps = false;
-	
-    function Delete(n) {
+	var http = require('http');
+    function Update(n) {
         RED.nodes.createNode(this,n);
         
 		var node = this;
@@ -39,9 +36,9 @@ module.exports = function(RED) {
 			if (server) {
 				var protocol = server.protocol;
 				if(protocol.toUpperCase() == "MQTT".toUpperCase()){
-					var queryDelete = ssapMessageGenerator.generateDeleteWithQueryTypeMessage(query, ontologia,queryType,server.sessionKey);
+					var queryUpdate = ssapMessageGenerator.generateUpdateWithQueryTypeMessage(msg.payload,query, ontologia,queryType,server.sessionKey);
 				
-					var state = server.sendToSib(queryDelete);
+					var state = server.sendToSib(queryUpdate);
 					
 					state.then(function(response){
 						
@@ -51,7 +48,7 @@ module.exports = function(RED) {
 							msg.payload=body;
 							node.send(msg);
 						}else{
-							console.log("Error sendind the delete SSAP message.");
+							console.log("Error sendind the update SSAP message.");
 							msg.payload=body.error;
 							if(body.errorCode == "AUTENTICATION"){
 								console.log("The sessionKey is not valid.");
@@ -62,16 +59,12 @@ module.exports = function(RED) {
 					});
 				}else if(protocol.toUpperCase() == "REST".toUpperCase()){
 					query = query.replace(/ /g, "+");
-					var instance = server.kp + ':' + server.instance;
 					var endpoint = server.endpoint;
 					var arr = endpoint.toString().split(":");
+					
 					var host;
 					var port = 80;
 					
-					if (arr[0].toUpperCase()=='HTTPS'.toUpperCase()) {
-						isHttps=true;
-						console.log("Using HTTPS:"+arr[0]);
-					}
 					if(arr[0].toUpperCase()=="HTTP".toUpperCase()||arr[0].toUpperCase()=='HTTPS'.toUpperCase()){
 						host=arr[1].substring(2, arr[1].length);
 						if(arr.length>2){
@@ -84,40 +77,40 @@ module.exports = function(RED) {
 						}
 					}
 					
-					//Se prepara el mensaje delete
-					var queryDelete='?$sessionKey='+server.sessionKey+'&$query='+query+'&$queryType='+queryType;
-					queryDelete = queryDelete.replace(/ /g, "+");
-
-					var postheadersDelete = {
+					//Se prepara el mensaje update
+							
+					var queryUpdate='?$sessionKey='+server.sessionKey+'&$query='+query+'&$queryType='+queryType;
+					
+					var postheadersUpdate = {
 						'Content-Type' : 'application/json',
 						'Accept' : 'application/json',
-						//'Content-Length' : Buffer.byteLength(queryDelete, 'utf8')
 					};
 					
-				
-					var optionsDelete = {
+					var optionsUpdate = {
 					  host: host,
 					  port: port,
-					  path: '/sib/services/api_ssap/v01/SSAPResource'+queryDelete,
+					  path: '/sib/services/api_ssap/v01/SSAPResource/'+queryUpdate,
 					  method: 'GET',
-					  headers: postheadersDelete,
-					  rejectUnauthorized: false
+					  headers: postheadersUpdate
 					};
-					// do the GET POST call
-					var resultDelete='';
-					if (isHttps) 
-						http= require('https');
-					else
-						http = require('http');
-					var reqDelete = http.request(optionsDelete, function(res) {
-						console.log("Status code of the Delete call: ", res.statusCode);
+					// do the UPDATE GET call
+					var resultUpdate='';
+					var reqUpdate = http.request(optionsUpdate, function(res) {
+						console.log("Status code of the Update call: ", res.statusCode);
 						res.on('data', function(d) {
-							resultDelete +=d;
+							resultUpdate +=d;
 						});
 						res.on('end', function() {
-							if(res.statusCode==400 || res.statusCode==401){
-								//La sessionKey no es válida, se hace el join
-								//Se regenera la sessionKey con un join
+							if(res.statusCode==200){
+								console.log("The data has been updated.");
+								try{
+									resultUpdate = JSON.parse(resultUpdate);
+									msg.payload=resultUpdate;
+								} catch (err) {
+									msg.payload=resultUpdate;
+								}
+								node.send(msg);
+							}else if(res.statusCode==400 || res.statusCode==401){
 								var instance = server.kp + ':' + server.instance;
 								var queryJoin = ssapResourceGenerator.generateJoinByTokenMessage(server.kp, instance, server.token);
 								
@@ -132,9 +125,10 @@ module.exports = function(RED) {
 								  port: port,
 								  path: '/sib/services/api_ssap/v01/SSAPResource/',
 								  method: 'POST',
-								  headers: postheadersJoin,
-								  rejectUnauthorized: false
+								  headers: postheadersJoin
 								};
+								
+								// do the JOIN POST call
 								var result='';
 								var reqPost = http.request(optionsJoin, function(res) {
 									console.log("Status code of the Join call: ", res.statusCode);
@@ -145,88 +139,70 @@ module.exports = function(RED) {
 										result = JSON.parse(result);
 										server.sessionKey=result.sessionKey;
 										console.log("SessionKey obtained: " + server.sessionKey);
+										//Se prepara el mensaje update
 										
-										//Se prepara el mensaje delete
-										var queryDelete='?$sessionKey='+server.sessionKey+'&$query='+query+'&$queryType='+queryType;
-										queryDelete = queryDelete.replace(/ /g, "+");
-
-										var postheadersDelete = {
+										var queryUpdate='?$sessionKey='+server.sessionKey+'&$query='+query+'&$queryType='+queryType;
+										
+										var postheadersUpdate = {
 											'Content-Type' : 'application/json',
 											'Accept' : 'application/json',
-											//'Content-Length' : Buffer.byteLength(queryDelete, 'utf8')
 										};
 										
-										var optionsDelete = {
+										var optionsUpdate = {
 										  host: host,
 										  port: port,
-										  path: '/sib/services/api_ssap/v01/SSAPResource'+queryDelete,
+										  path: '/sib/services/api_ssap/v01/SSAPResource/'+queryUpdate,
 										  method: 'GET',
-										  headers: postheadersDelete,
-										  rejectUnauthorized: false
+										  headers: postheadersUpdate
 										};
-										
-										// do the GET POST call
-										var resultDelete='';
-										var reqDelete = http.request(optionsDelete, function(res) {
-											console.log("Status code of the Delete call: ", res.statusCode);
+										// do the UPDATE GET call
+										var resultUpdate='';
+										var reqUpdate = http.request(optionsUpdate, function(res) {
+											console.log("Status code of the Update call: ", res.statusCode);
 											res.on('data', function(d) {
-												resultDelete +=d;
+												resultUpdate +=d;
 											});
 											res.on('end', function() {
 												if(res.statusCode=="200"){
-													console.log("The data has been deleted.");
+													console.log("The data has been updated.");
 													try{
-														resultDelete = JSON.parse(resultDelete);
-														msg.payload=resultDelete;
+														resultUpdate = JSON.parse(resultUpdate);
+														msg.payload=resultUpdate;
 													} catch (err) {
-														msg.payload=resultDelete;
+														msg.payload=resultUpdate;
 													}
 													node.send(msg);
 												}
 											});
 											
 										});
-										reqDelete.end();
-										reqDelete.on('error', function(err) {
-											console.log("Error:"+err);
-											node.error("Error:"+err);
+										reqUpdate.end();
+										reqUpdate.on('error', function(err) {
+											console.log("There was an error updating the data: ", err);
 										});
-										
-										
 									});
 									
 								});
 								reqPost.write(queryJoin);
 								reqPost.end();
 								reqPost.on('error', function(err) {
-									console.log("There was an error inserting the data: ", err);
+									console.log(err);
 								});
-								
-							}else if(res.statusCode==200){
-								try{
-									resultDelete = JSON.parse(resultDelete);
-									msg.payload=resultDelete;
-								} catch (err) {
-									msg.payload=resultDelete;
-								}
-								node.send(msg);
-							}
-						});
-						
-					});
-					//reqDelete.write(queryDelete);
-					reqDelete.end();
-					reqDelete.on('error', function(err) {
-									console.log("Error:"+err);
-									node.error("Error:"+err);
-					});
+										}
+									});
+									
+								});
+								reqUpdate.end();
+								reqUpdate.on('error', function(err) {
+									console.log("There was an error updating the data: ", err);
+								});
 				}
-					
+				
 			} else {
 				console.log("Error");
 			}
         });
 		
     }
-    RED.nodes.registerType("sofia2-delete",Delete);
+    RED.nodes.registerType("sofia2-update",Update);
 }

@@ -167,14 +167,18 @@ module.exports = function(RED) {
 		
 		//Envia un mensaje al SIB
 		this.sendToSib=function(msg) {
-		  if(typeof(myKp) != "undefined"){				
-			return myKp.send(msg);			
+		  if(typeof(myKp) != "undefined"){
+				
+			return myKp.send(msg);
+			
 		  }
-		}			
+		}	
+		
 		//Devuelve la sessionkey de la conexión
 		this.getSessionKey=function() {
 		  return node.sessionKey;
-		}		
+		}
+		
     }
 	
     RED.nodes.registerType("sofia2-config",SofiaConfig);

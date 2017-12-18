@@ -2,6 +2,13 @@
 
 *Read this in other languages: [English](README.md), [Spanish](README.es.md).*
 
+## Updates:
+
+* **December 2017**
+	* Components support HTTPS connection 
+	* Logs added
+
+
 ## Copyright notice
 
 © 2013-17 Minsait

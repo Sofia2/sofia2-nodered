@@ -2,9 +2,8 @@ module.exports = function(RED) {
 	var ssapMessageGenerator = require('../lib/SSAPMessageGenerator');
 	var sofia2Config = require('../sofia2-connection-config/sofia2-connection-config');
 	var ssapResourceGenerator = require('../lib/SSAPResourceGenerator');
-	//var http = require('http');
-	//var https = require('https');
-	var http = null;
+	var http = require('http');
+	var https = require('https');
 	var isHttps = false;
 	
     function Query(n) {
@@ -81,17 +80,14 @@ module.exports = function(RED) {
 					var host;
 					var port = 80;
 					
-					if (arr[0].toUpperCase()=='HTTPS'.toUpperCase()) {
+					if (arr[0].toUpperCase()=='HTTPS'.toUpperCase())
 						isHttps=true;
-						console.log("Using HTTPS:"+arr[0]);
-					}
 					if(arr[0].toUpperCase()=="HTTP".toUpperCase()||arr[0].toUpperCase()=='HTTPS'.toUpperCase()){
 						host=arr[1].substring(2, arr[1].length);
 						if(arr.length>2){
 							port = parseInt(arr[arr.length-1]);
 						}
 					}else{
-						console.log("Using Host:"+arr[0]);
 						host = arr[0];	
 						if(arr.length>1){
 							port = parseInt(arr[arr.length-1]);
@@ -110,15 +106,10 @@ module.exports = function(RED) {
 					  port: port,
 					  path: pathUrl,
 					  method: 'GET',
-					  headers: postheaders,
-					  rejectUnauthorized: false
+					  headers: postheaders
 					};
 					// do the GET call
 					var result='';
-					if (isHttps) 
-						http= require('https');
-					else
-						http = require('http');
 					var req = http.request(options, function(res) {
 						console.log("Status code of the query call: ", res.statusCode);
 						if( res.statusCode==400 || res.statusCode==401){
@@ -137,8 +128,7 @@ module.exports = function(RED) {
 							  port: port,
 							  path: '/sib/services/api_ssap/v01/SSAPResource/',
 							  method: 'POST',
-							  headers: postheadersJoin,
-							  rejectUnauthorized: false
+							  headers: postheadersJoin
 							};
 							
 						// do the JOIN POST call
@@ -164,8 +154,7 @@ module.exports = function(RED) {
 								  port: port,
 								  path: pathUrl,
 								  method: 'GET',
-								  headers: postheaders,
-							      rejectUnauthorized: false
+								  headers: postheaders
 								};
 								// do the GET call
 								var result='';
