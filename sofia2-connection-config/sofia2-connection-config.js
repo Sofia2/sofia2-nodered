@@ -8,7 +8,12 @@ module.exports = function(RED) {
     function SofiaConfig(n) {
 		
         RED.nodes.createNode(this,n);
-		
+	this.on('close', function () {
+		console.log('Closing MQTT connection...');
+		myKp.disconnect();
+		console.log("Connection closed.");
+	});
+	    
         this.protocol=n.protocol;
 		this.kp=n.kp;
 		this.instance=n.instance;
